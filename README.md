@@ -1,2 +1,2 @@
-# go-ecommerce
-Set of go libraries to access e-commerce platforms
+# gocommerce
+Go library to accessing popular e-commerce platforms
