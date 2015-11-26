@@ -7,16 +7,20 @@ import (
 	"net/url"
 )
 
+// PrestaShopTransport is transport interface for accessing PrestaShop API
 type PrestaShopTransport interface {
 	Get(url string) ([]byte, error)
 }
 
+// DefaultPrestaShopTrasport is the default implementation of PrestaShopTransport
+// if it doesn't suit your needs, you can consider providing your own implementation
 type DefaultPrestaShopTrasport struct {
 	apiURL string
 	key    string
 	client *http.Client
 }
 
+// NewDefaultPrestaShopTrasport creates new DefaultPrestaShopTrasport
 func NewDefaultPrestaShopTrasport(apiURL, key string) *DefaultPrestaShopTrasport {
 	return &DefaultPrestaShopTrasport{
 		apiURL,
@@ -25,7 +29,8 @@ func NewDefaultPrestaShopTrasport(apiURL, key string) *DefaultPrestaShopTrasport
 	}
 }
 
-func (dpt *DefaultPrestaShopTrasport) getUrl(path string, params map[string]string) string {
+// getUrl builds URL for accessing PrestaShop
+func (dpt *DefaultPrestaShopTrasport) getURL(path string, params map[string]string) string {
 	var err error
 	var u *url.URL
 	if u, err = url.Parse(dpt.apiURL); err != nil {
@@ -40,6 +45,7 @@ func (dpt *DefaultPrestaShopTrasport) getUrl(path string, params map[string]stri
 	return u.String()
 }
 
+// Get sends GET request to PrestaShop
 func (dpt *DefaultPrestaShopTrasport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
@@ -52,7 +58,7 @@ func (dpt *DefaultPrestaShopTrasport) Get(url string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK || resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
 	return ioutil.ReadAll(resp.Body)
