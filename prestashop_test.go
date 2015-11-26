@@ -7,7 +7,7 @@ import (
 
 type TestPrestaShopTransport struct{}
 
-func (tpt *TestPrestaShopTransport) get(url string) ([]byte, error) {
+func (tpt *TestPrestaShopTransport) Get(url string) ([]byte, error) {
 	return nil, nil
 }
 

@@ -4,30 +4,51 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 type PrestaShopTransport interface {
-	get(url string) ([]byte, error)
+	Get(url string) ([]byte, error)
 }
 
 type DefaultPrestaShopTrasport struct {
-	storeUrl string
-	key      string
-	client   *http.Client
+	apiURL string
+	key    string
+	client *http.Client
 }
 
-func NewDefaultPrestaShopTrasport(storeURL, key string) *DefaultPrestaShopTrasport {
+func NewDefaultPrestaShopTrasport(apiURL, key string) *DefaultPrestaShopTrasport {
 	return &DefaultPrestaShopTrasport{
-		storeURL,
+		apiURL,
 		key,
 		&http.Client{},
 	}
 }
 
-func (dpt *DefaultPrestaShopTrasport) get(url string) ([]byte, error) {
+func (dpt *DefaultPrestaShopTrasport) getUrl(path string, params map[string]string) string {
+	var err error
+	var u *url.URL
+	if u, err = url.Parse(dpt.apiURL); err != nil {
+		panic(err)
+	}
+	u.Path += path
+	q := u.Query()
+	for k, v := range params {
+		q.Set(k, v)
+	}
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+func (dpt *DefaultPrestaShopTrasport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
-	if resp, err = dpt.client.Get(url); err != nil {
+	var req *http.Request
+	if req, err = http.NewRequest("GET", url, nil); err != nil {
+		return nil, err
+	}
+	req.SetBasicAuth(dpt.key, "")
+	if resp, err = dpt.client.Do(req); err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
