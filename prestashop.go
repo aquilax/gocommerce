@@ -1,7 +1,9 @@
 package gocommerce
 
-type Prestashop struct{}
+type PrestaShop struct {
+	pt PrestaShopTransport
+}
 
-func NewPrestashop() *Prestashop {
-	return &Prestashop{}
+func NewPrestaShop(pt PrestaShopTransport) *PrestaShop {
+	return &PrestaShop{pt}
 }

@@ -5,11 +5,20 @@ import (
 	"testing"
 )
 
+type TestPrestaShopTransport struct{}
+
+func (tpt *TestPrestaShopTransport) get(url string) ([]byte, error) {
+	return nil, nil
+}
+
 func TestPrestashop(t *testing.T) {
-	Convey("Given new Prestashop", t, func() {
-		ps := NewPrestashop()
-		Convey("Prestashop is not null", func() {
-			So(ps, ShouldNotBeNil)
+	Convey("Given PrestashopTransport", t, func() {
+		tpt := &TestPrestaShopTransport{}
+		Convey("Given new PrestaShop", func() {
+			ps := NewPrestaShop(tpt)
+			Convey("PrestaShop is not null", func() {
+				So(ps, ShouldNotBeNil)
+			})
 		})
 	})
 }
