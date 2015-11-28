@@ -7,22 +7,17 @@ import (
 	"net/url"
 )
 
-// PrestaShopTransport is transport interface for accessing PrestaShop API
-type PrestaShopTransport interface {
-	Get(url string) ([]byte, error)
-}
-
-// DefaultPrestaShopTrasport is the default implementation of PrestaShopTransport
+// PrestaShopTrasport is the default implementation of PrestaShopTransport
 // if it doesn't suit your needs, you can consider providing your own implementation
-type DefaultPrestaShopTrasport struct {
+type PrestaShopTrasport struct {
 	apiURL string
 	key    string
 	client *http.Client
 }
 
-// NewDefaultPrestaShopTrasport creates new DefaultPrestaShopTrasport
-func NewDefaultPrestaShopTrasport(apiURL, key string) *DefaultPrestaShopTrasport {
-	return &DefaultPrestaShopTrasport{
+// NewPrestaShopTrasport creates new PrestaShopTrasport
+func NewPrestaShopTrasport(apiURL, key string) *PrestaShopTrasport {
+	return &PrestaShopTrasport{
 		apiURL,
 		key,
 		&http.Client{},
@@ -30,10 +25,10 @@ func NewDefaultPrestaShopTrasport(apiURL, key string) *DefaultPrestaShopTrasport
 }
 
 // getUrl builds URL for accessing PrestaShop
-func (dpt *DefaultPrestaShopTrasport) getURL(path string, params map[string]string) string {
+func (pt *PrestaShopTrasport) getURL(path string, params map[string]string) string {
 	var err error
 	var u *url.URL
-	if u, err = url.Parse(dpt.apiURL); err != nil {
+	if u, err = url.Parse(pt.apiURL); err != nil {
 		panic(err)
 	}
 	u.Path += path
@@ -46,15 +41,15 @@ func (dpt *DefaultPrestaShopTrasport) getURL(path string, params map[string]stri
 }
 
 // Get sends GET request to PrestaShop
-func (dpt *DefaultPrestaShopTrasport) Get(url string) ([]byte, error) {
+func (pt *PrestaShopTrasport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
 	var req *http.Request
 	if req, err = http.NewRequest("GET", url, nil); err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(dpt.key, "")
-	if resp, err = dpt.client.Do(req); err != nil {
+	req.SetBasicAuth(pt.key, "")
+	if resp, err = pt.client.Do(req); err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
