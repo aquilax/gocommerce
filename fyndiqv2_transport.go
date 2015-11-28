@@ -2,6 +2,7 @@ package gocommerce
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -23,11 +24,11 @@ func NewFyndiqV2Trasport(user, token string) *FyndiqV2Trasport {
 	}
 }
 
-func (ft *FyndiqV2Trasport) getURL(path string, params map[string]string) string {
-	var err error
+func (ft *FyndiqV2Trasport) URL(path string, params map[string]string) (string, error) {
 	var u *url.URL
+	var err error
 	if u, err = url.Parse(FyndiqV2BaseURL); err != nil {
-		panic(err)
+		return "", err
 	}
 	u.Path += path
 	q := u.Query()
@@ -35,7 +36,7 @@ func (ft *FyndiqV2Trasport) getURL(path string, params map[string]string) string
 		q.Set(k, v)
 	}
 	u.RawQuery = q.Encode()
-	return u.String()
+	return u.String(), nil
 }
 
 func (ft *FyndiqV2Trasport) Get(url string) ([]byte, error) {
@@ -54,4 +55,22 @@ func (ft *FyndiqV2Trasport) Get(url string) ([]byte, error) {
 		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func (ft *FyndiqV2Trasport) Patch(url string, reader io.Reader) error {
+	var err error
+	var resp *http.Response
+	var req *http.Request
+	if req, err = http.NewRequest("PATCH", url, reader); err != nil {
+		return err
+	}
+	req.SetBasicAuth(ft.user, ft.token)
+	if resp, err = ft.client.Do(req); err != nil {
+		return err
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("HTTP Error: %d", resp.StatusCode)
+	}
+	return nil
 }

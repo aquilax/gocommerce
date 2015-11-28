@@ -23,11 +23,11 @@ func NewFyndiqV1Transport(user string, token string) *FyndiqV1Transport {
 	}
 }
 
-func (dft *FyndiqV1Transport) getURL(path string, params map[string]string) string {
-	var err error
+func (dft *FyndiqV1Transport) URL(path string, params map[string]string) (string, error) {
 	var u *url.URL
+	var err error
 	if u, err = url.Parse(FyndiqV1BaseURL); err != nil {
-		panic(err)
+		return "", err
 	}
 	u.Path += path
 	q := u.Query()
@@ -38,7 +38,7 @@ func (dft *FyndiqV1Transport) getURL(path string, params map[string]string) stri
 		q.Set(k, v)
 	}
 	u.RawQuery = q.Encode()
-	return u.String()
+	return u.String(), nil
 }
 
 func (dft *FyndiqV1Transport) Get(url string) ([]byte, error) {

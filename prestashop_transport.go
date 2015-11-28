@@ -25,11 +25,11 @@ func NewPrestaShopTrasport(apiURL, key string) *PrestaShopTrasport {
 }
 
 // getUrl builds URL for accessing PrestaShop
-func (pt *PrestaShopTrasport) getURL(path string, params map[string]string) string {
-	var err error
+func (pt *PrestaShopTrasport) URL(path string, params map[string]string) (string, error) {
 	var u *url.URL
+	var err error
 	if u, err = url.Parse(pt.apiURL); err != nil {
-		panic(err)
+		return "", err
 	}
 	u.Path += path
 	q := u.Query()
@@ -37,7 +37,7 @@ func (pt *PrestaShopTrasport) getURL(path string, params map[string]string) stri
 		q.Set(k, v)
 	}
 	u.RawQuery = q.Encode()
-	return u.String()
+	return u.String(), nil
 }
 
 // Get sends GET request to PrestaShop
