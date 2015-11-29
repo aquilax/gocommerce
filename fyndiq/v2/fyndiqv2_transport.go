@@ -17,25 +17,25 @@ type FyndiqV2Transport interface {
 	transport.Transport
 }
 
-type Trasport struct {
+type Transport struct {
 	user   string
 	token  string
 	client *http.Client
 }
 
-func NewTrasport(user, token string) *Trasport {
-	return &Trasport{
+func NewTransport(user, token string) *Transport {
+	return &Transport{
 		user,
 		token,
 		&http.Client{},
 	}
 }
 
-func (t *Trasport) Client() *http.Client {
+func (t *Transport) Client() *http.Client {
 	return t.client
 }
 
-func (t *Trasport) NewRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
+func (t *Transport) NewRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
 	var err error
 	var req *http.Request
 	if req, err = http.NewRequest(method, urlStr, body); err != nil {
@@ -45,7 +45,7 @@ func (t *Trasport) NewRequest(method, urlStr string, body io.Reader) (*http.Requ
 	return req, nil
 }
 
-func (t *Trasport) URL(path string, params map[string]string) (string, error) {
+func (t *Transport) URL(path string, params map[string]string) (string, error) {
 	var u *url.URL
 	var err error
 	if u, err = url.Parse(BaseURL); err != nil {
@@ -60,7 +60,7 @@ func (t *Trasport) URL(path string, params map[string]string) (string, error) {
 	return u.String(), nil
 }
 
-func (t *Trasport) Get(url string) ([]byte, error) {
+func (t *Transport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
 	var req *http.Request
@@ -77,7 +77,7 @@ func (t *Trasport) Get(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func (t *Trasport) Patch(url string, reader io.Reader) error {
+func (t *Transport) Patch(url string, reader io.Reader) error {
 	var err error
 	var resp *http.Response
 	var req *http.Request
