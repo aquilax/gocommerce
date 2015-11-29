@@ -1,4 +1,4 @@
-package gocommerce
+package fyndiqv2
 
 import (
 	"fmt"
@@ -8,26 +8,26 @@ import (
 	"net/url"
 )
 
-const FyndiqV2BaseURL = "https://api.fyndiq.com/v2/"
+const BaseURL = "https://api.fyndiq.com/v2/"
 
-type FyndiqV2Trasport struct {
+type Trasport struct {
 	user   string
 	token  string
 	client *http.Client
 }
 
-func NewFyndiqV2Trasport(user, token string) *FyndiqV2Trasport {
-	return &FyndiqV2Trasport{
+func NewTrasport(user, token string) *Trasport {
+	return &Trasport{
 		user,
 		token,
 		&http.Client{},
 	}
 }
 
-func (ft *FyndiqV2Trasport) URL(path string, params map[string]string) (string, error) {
+func (t *Trasport) URL(path string, params map[string]string) (string, error) {
 	var u *url.URL
 	var err error
-	if u, err = url.Parse(FyndiqV2BaseURL); err != nil {
+	if u, err = url.Parse(BaseURL); err != nil {
 		return "", err
 	}
 	u.Path += path
@@ -39,15 +39,15 @@ func (ft *FyndiqV2Trasport) URL(path string, params map[string]string) (string, 
 	return u.String(), nil
 }
 
-func (ft *FyndiqV2Trasport) Get(url string) ([]byte, error) {
+func (t *Trasport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
 	var req *http.Request
 	if req, err = http.NewRequest("GET", url, nil); err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(ft.user, ft.token)
-	if resp, err = ft.client.Do(req); err != nil {
+	req.SetBasicAuth(t.user, t.token)
+	if resp, err = t.client.Do(req); err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -57,15 +57,15 @@ func (ft *FyndiqV2Trasport) Get(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func (ft *FyndiqV2Trasport) Patch(url string, reader io.Reader) error {
+func (t *Trasport) Patch(url string, reader io.Reader) error {
 	var err error
 	var resp *http.Response
 	var req *http.Request
 	if req, err = http.NewRequest("PATCH", url, reader); err != nil {
 		return err
 	}
-	req.SetBasicAuth(ft.user, ft.token)
-	if resp, err = ft.client.Do(req); err != nil {
+	req.SetBasicAuth(t.user, t.token)
+	if resp, err = t.client.Do(req); err != nil {
 		return err
 	}
 	resp.Body.Close()

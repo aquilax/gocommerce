@@ -1,4 +1,4 @@
-package gocommerce
+package fyndiqv1
 
 import (
 	"fmt"
@@ -7,33 +7,33 @@ import (
 	"net/url"
 )
 
-const FyndiqV1BaseURL = "https://fyndiq.se/api/v1"
+const BaseURL = "https://fyndiq.se/api/v1"
 
-type FyndiqV1Transport struct {
+type Transport struct {
 	user   string
 	token  string
 	client *http.Client
 }
 
-func NewFyndiqV1Transport(user string, token string) *FyndiqV1Transport {
-	return &FyndiqV1Transport{
+func NewTransport(user string, token string) *Transport {
+	return &Transport{
 		user,
 		token,
 		&http.Client{},
 	}
 }
 
-func (dft *FyndiqV1Transport) URL(path string, params map[string]string) (string, error) {
+func (t *Transport) URL(path string, params map[string]string) (string, error) {
 	var u *url.URL
 	var err error
-	if u, err = url.Parse(FyndiqV1BaseURL); err != nil {
+	if u, err = url.Parse(BaseURL); err != nil {
 		return "", err
 	}
 	u.Path += path
 	q := u.Query()
 	// add auth
-	q.Set("user", dft.user)
-	q.Set("token", dft.token)
+	q.Set("user", t.user)
+	q.Set("token", t.token)
 	for k, v := range params {
 		q.Set(k, v)
 	}
@@ -41,14 +41,14 @@ func (dft *FyndiqV1Transport) URL(path string, params map[string]string) (string
 	return u.String(), nil
 }
 
-func (dft *FyndiqV1Transport) Get(url string) ([]byte, error) {
+func (t *Transport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
 	var req *http.Request
 	if req, err = http.NewRequest("GET", url, nil); err != nil {
 		return nil, err
 	}
-	if resp, err = dft.client.Do(req); err != nil {
+	if resp, err = t.client.Do(req); err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()

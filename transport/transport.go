@@ -1,4 +1,4 @@
-package gocommerce
+package transport
 
 import (
 	"io"
