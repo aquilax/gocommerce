@@ -2,6 +2,7 @@ package fyndiqv2
 
 import (
 	"fmt"
+	"github.com/aquilax/gocommerce/transport"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,12 @@ import (
 )
 
 const BaseURL = "https://api.fyndiq.com/v2/"
+
+type FyndiqV2Transport interface {
+	Client() *http.Client
+	NewRequest(method, urlStr string, body io.Reader) (*http.Request, error)
+	transport.Transport
+}
 
 type Trasport struct {
 	user   string
@@ -22,6 +29,20 @@ func NewTrasport(user, token string) *Trasport {
 		token,
 		&http.Client{},
 	}
+}
+
+func (t *Trasport) Client() *http.Client {
+	return t.client
+}
+
+func (t *Trasport) NewRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
+	var err error
+	var req *http.Request
+	if req, err = http.NewRequest(method, urlStr, body); err != nil {
+		return nil, err
+	}
+	req.SetBasicAuth(t.user, t.token)
+	return req, nil
 }
 
 func (t *Trasport) URL(path string, params map[string]string) (string, error) {
@@ -43,11 +64,10 @@ func (t *Trasport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
 	var req *http.Request
-	if req, err = http.NewRequest("GET", url, nil); err != nil {
+	if req, err = t.NewRequest("GET", url, nil); err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(t.user, t.token)
-	if resp, err = t.client.Do(req); err != nil {
+	if resp, err = t.Client().Do(req); err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -61,10 +81,9 @@ func (t *Trasport) Patch(url string, reader io.Reader) error {
 	var err error
 	var resp *http.Response
 	var req *http.Request
-	if req, err = http.NewRequest("PATCH", url, reader); err != nil {
+	if req, err = t.NewRequest("PATCH", url, reader); err != nil {
 		return err
 	}
-	req.SetBasicAuth(t.user, t.token)
 	if resp, err = t.client.Do(req); err != nil {
 		return err
 	}

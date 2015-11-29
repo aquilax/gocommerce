@@ -4,12 +4,13 @@ package fyndiqv2
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/aquilax/gocommerce/transport"
+	"io"
+	"net/http"
 	"strconv"
 )
 
 type API struct {
-	tr transport.Transport
+	tr FyndiqV2Transport
 }
 
 type Settings struct {
@@ -63,7 +64,13 @@ type Orders struct {
 	paginated
 }
 
-func New(tr transport.Transport) *API {
+type deliveryNoteRequest struct {
+	Orders []struct {
+		Order int `json:"order"`
+	} `json:"orders"`
+}
+
+func New(tr FyndiqV2Transport) *API {
 	return &API{tr}
 }
 
@@ -141,4 +148,32 @@ func (a *API) GetOrders(url string) (*Orders, error) {
 		return &orders, err
 	}
 	return &orders, nil
+}
+
+func (a *API) GetDeliveryNotes(orderIds []int) (io.ReadCloser, error) {
+	var err error
+	var url string
+	if url, err = a.tr.URL("delivery_notes/", map[string]string{}); err != nil {
+		return nil, err
+	}
+	var dnr deliveryNoteRequest
+	for _, orderId := range orderIds {
+		dnr.Orders = append(dnr.Orders, struct {
+			Order int `json:"order"`
+		}{orderId})
+	}
+	var b []byte
+	if b, err = json.Marshal(dnr); err != nil {
+		return nil, err
+	}
+	var req *http.Request
+	if req, err = a.tr.NewRequest("POST", url, bytes.NewBuffer(b)); err != nil {
+		return nil, err
+	}
+	var resp *http.Response
+	if resp, err = a.tr.Client().Do(req); err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return resp.Body, nil
 }
