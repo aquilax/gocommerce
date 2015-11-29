@@ -84,6 +84,25 @@ type deliveryNoteRequest struct {
 	} `json:"orders"`
 }
 
+type OrderPackage struct {
+	Service  DeliveryService `json:"service "`
+	Tracking string          `json:"tracking"`
+	Sku      []string        `json:"sku"`
+}
+
+type OrderPackages struct {
+	Packages []OrderPackage `json:"packages"`
+}
+
+type BulkOrderPackage struct {
+	Order string `json:"order"`
+	OrderPackage
+}
+
+type BulkOrderPackages struct {
+	Packages []BulkOrderPackage `json:"packages"`
+}
+
 func New(tr FyndiqV2Transport) *API {
 	return &API{tr}
 }
@@ -190,4 +209,30 @@ func (a *API) GetDeliveryNotes(orderIds []int) (io.ReadCloser, error) {
 	}
 	defer resp.Body.Close()
 	return resp.Body, nil
+}
+
+func (a *API) SetOrderPackages(orderId int, packages *OrderPackages) error {
+	var url string
+	var err error
+	if url, err = a.tr.URL("packages/"+strconv.Itoa(orderId), map[string]string{}); err != nil {
+		return err
+	}
+	var b []byte
+	if b, err = json.Marshal(packages); err != nil {
+		return err
+	}
+	return a.tr.Post(url, bytes.NewReader(b))
+}
+
+func (a *API) SetBulkPackages(packages *BulkOrderPackages) error {
+	var url string
+	var err error
+	if url, err = a.tr.URL("packages/", map[string]string{}); err != nil {
+		return err
+	}
+	var b []byte
+	if b, err = json.Marshal(packages); err != nil {
+		return err
+	}
+	return a.tr.Post(url, bytes.NewReader(b))
 }

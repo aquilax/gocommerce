@@ -18,15 +18,17 @@ type FyndiqV2Transport interface {
 }
 
 type Transport struct {
-	user   string
-	token  string
-	client *http.Client
+	user      string
+	token     string
+	userAgent string
+	client    *http.Client
 }
 
-func NewTransport(user, token string) *Transport {
+func NewTransport(user, token, userAgent string) *Transport {
 	return &Transport{
 		user,
 		token,
+		userAgent,
 		&http.Client{},
 	}
 }
@@ -41,6 +43,7 @@ func (t *Transport) NewRequest(method, urlStr string, body io.Reader) (*http.Req
 	if req, err = http.NewRequest(method, urlStr, body); err != nil {
 		return nil, err
 	}
+	req.Header.Set("User-Agent", t.userAgent)
 	req.SetBasicAuth(t.user, t.token)
 	return req, nil
 }
@@ -77,11 +80,11 @@ func (t *Transport) Get(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func (t *Transport) Patch(url string, reader io.Reader) error {
+func (t *Transport) submit(method, url string, reader io.Reader) error {
 	var err error
 	var resp *http.Response
 	var req *http.Request
-	if req, err = t.NewRequest("PATCH", url, reader); err != nil {
+	if req, err = t.NewRequest(method, url, reader); err != nil {
 		return err
 	}
 	if resp, err = t.client.Do(req); err != nil {
@@ -92,4 +95,12 @@ func (t *Transport) Patch(url string, reader io.Reader) error {
 		return fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
 	return nil
+}
+
+func (t *Transport) Patch(url string, reader io.Reader) error {
+	return t.submit("PATCH", url, reader)
+}
+
+func (t *Transport) Post(url string, reader io.Reader) error {
+	return t.submit("POST", url, reader)
 }

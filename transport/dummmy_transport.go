@@ -14,6 +14,10 @@ func (dt *DummyTransport) Get(url string) ([]byte, error) {
 	return nil, nil
 }
 
+func (dt *DummyTransport) Post(url string, reader io.Reader) error {
+	return nil
+}
+
 func (dt *DummyTransport) Patch(url string, reader io.Reader) error {
 	return nil
 }
