@@ -9,6 +9,20 @@ import (
 	"strconv"
 )
 
+type DeliveryService string
+
+const (
+	PostNord     DeliveryService = "PostNord"
+	Schenker     DeliveryService = "Schenker"
+	DHL          DeliveryService = "DHL"
+	Bring        DeliveryService = "Bring"
+	DeutschePost DeliveryService = "Deutsche Post"
+	DPD          DeliveryService = "DPD"
+	GLS          DeliveryService = "GLS"
+	UPS          DeliveryService = "UPS"
+	Hermes       DeliveryService = "Hermes"
+)
+
 type API struct {
 	tr FyndiqV2Transport
 }
