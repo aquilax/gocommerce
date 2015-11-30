@@ -119,10 +119,8 @@ func (a *API) GetSettings() (*Settings, error) {
 	if b, err = a.tr.Get(url); err != nil {
 		return nil, err
 	}
-	if err = json.Unmarshal(b, settings); err != nil {
-		return &settings, err
-	}
-	return &settings, nil
+	err = json.Unmarshal(b, settings)
+	return &settings, err
 }
 
 // UpdateSettings updates API v2 settings
@@ -147,10 +145,8 @@ func (a *API) GetProductInfo(url string) (*ProductInfo, error) {
 	if b, err = a.tr.Get(url); err != nil {
 		return nil, err
 	}
-	if err = json.Unmarshal(b, productInfo); err != nil {
-		return &productInfo, err
-	}
-	return &productInfo, nil
+	err = json.Unmarshal(b, productInfo)
+	return &productInfo, err
 }
 
 func (a *API) GetOrder(orderId int) (*Order, error) {
@@ -164,10 +160,8 @@ func (a *API) GetOrder(orderId int) (*Order, error) {
 	if b, err = a.tr.Get(url); err != nil {
 		return nil, err
 	}
-	if err = json.Unmarshal(b, order); err != nil {
-		return &order, err
-	}
-	return &order, nil
+	err = json.Unmarshal(b, order)
+	return &order, err
 }
 
 func (a *API) GetOrders(url string) (*Orders, error) {
@@ -177,10 +171,8 @@ func (a *API) GetOrders(url string) (*Orders, error) {
 	if b, err = a.tr.Get(url); err != nil {
 		return nil, err
 	}
-	if err = json.Unmarshal(b, orders); err != nil {
-		return &orders, err
-	}
-	return &orders, nil
+	err = json.Unmarshal(b, orders)
+	return &orders, err
 }
 
 func (a *API) GetDeliveryNotes(orderIds []int) (io.ReadCloser, error) {
@@ -204,11 +196,9 @@ func (a *API) GetDeliveryNotes(orderIds []int) (io.ReadCloser, error) {
 		return nil, err
 	}
 	var resp *http.Response
-	if resp, err = a.tr.Client().Do(req); err != nil {
-		return nil, err
-	}
+	resp, err = a.tr.Client().Do(req)
 	defer resp.Body.Close()
-	return resp.Body, nil
+	return resp.Body, err
 }
 
 func (a *API) SetOrderPackages(orderId int, packages *OrderPackages) error {
