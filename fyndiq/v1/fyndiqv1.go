@@ -100,3 +100,14 @@ func (a *API) GetProduct(id int) (*Product, error) {
 	err = json.Unmarshal(b, product)
 	return &product, err
 }
+
+// DeleteProduct deletes single product by ID
+// http://fyndiq.github.io/api-v1/#delete-delete-products
+func (a *API) DeleteProduct(id int) error {
+	var err error
+	var url string
+	if url, err = a.tr.URL("product/", map[string]string{}); err != nil {
+		return err
+	}
+	return a.tr.Delete(url)
+}

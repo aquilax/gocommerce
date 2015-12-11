@@ -2,6 +2,7 @@ package fyndiqv1
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -41,6 +42,15 @@ func (t *Transport) URL(path string, params map[string]string) (string, error) {
 	return u.String(), nil
 }
 
+func (t *Transport) NewRequest(method, urlStr string, body io.Reader) (*http.Request, error) {
+	var err error
+	var req *http.Request
+	if req, err = http.NewRequest(method, urlStr, body); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
 func (t *Transport) Get(url string) ([]byte, error) {
 	var err error
 	var resp *http.Response
@@ -56,4 +66,46 @@ func (t *Transport) Get(url string) ([]byte, error) {
 		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func (t *Transport) Delete(url string) error {
+	var err error
+	var resp *http.Response
+	var req *http.Request
+	if req, err = http.NewRequest("DELETE", url, nil); err != nil {
+		return err
+	}
+	if resp, err = t.client.Do(req); err != nil {
+		return err
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
+		return fmt.Errorf("HTTP Error: %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (t *Transport) submit(method, url string, reader io.Reader) error {
+	var err error
+	var resp *http.Response
+	var req *http.Request
+	if req, err = t.NewRequest(method, url, reader); err != nil {
+		return err
+	}
+	if resp, err = t.client.Do(req); err != nil {
+		return err
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNoContent {
+		return fmt.Errorf("HTTP Error: %d", resp.StatusCode)
+	}
+	return nil
+}
+
+func (t *Transport) Post(url string, reader io.Reader) error {
+	return t.submit("POST", url, reader)
+}
+
+func (t *Transport) Put(url string, reader io.Reader) error {
+	return t.submit("PUT", url, reader)
 }

@@ -22,9 +22,9 @@ func (t *FV1DummyTransport) NewRequest(method, urlStr string, body io.Reader) (*
 
 func TestFyndiqV2(t *testing.T) {
 	Convey("Given Transport", t, func() {
-		tt := &FV1DummyTransport{}
+		t := NewTransport("user", "token")
 		Convey("Given new FyndiqV1", func() {
-			f := New(tt)
+			f := New(t)
 			Convey("FyndiqV1 is not null", func() {
 				So(f, ShouldNotBeNil)
 			})

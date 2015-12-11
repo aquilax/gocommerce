@@ -14,6 +14,7 @@ const BaseURL = "https://api.fyndiq.com/v2/"
 type FyndiqV2Transport interface {
 	Client() *http.Client
 	NewRequest(method, urlStr string, body io.Reader) (*http.Request, error)
+	Patch(url string, reader io.Reader) error
 	transport.Transport
 }
 

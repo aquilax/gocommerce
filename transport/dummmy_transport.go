@@ -18,6 +18,14 @@ func (dt *DummyTransport) Post(url string, reader io.Reader) error {
 	return nil
 }
 
+func (dt *DummyTransport) Put(url string, reader io.Reader) error {
+	return nil
+}
+
 func (dt *DummyTransport) Patch(url string, reader io.Reader) error {
+	return nil
+}
+
+func (dt *DummyTransport) Delete(url string) error {
 	return nil
 }
