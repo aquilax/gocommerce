@@ -1,6 +1,7 @@
 package fyndiqv1
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/aquilax/gocommerce/transport"
 	"strconv"
@@ -45,20 +46,20 @@ type ArticleGroup struct {
 // Product represents single product
 // http://fyndiq.github.io/api-v1/#product
 type Product struct {
-	Title             string       `json: "title"`
-	Description       string       `json: "description"`
-	Oldprice          float32      `json: "oldprice"`
-	Price             float32      `json: "price"`
-	MomsPercent       int          `json: "moms_percent"`
-	NumInStock        int          `json: "num_in_stock"`
-	State             string       `json: "state"`
-	IsBlockedByFyndiq bool         `json: "is_blocked_by_fyndiq"`
-	ItemNo            string       `json: "item_no"`
-	PlatformItemNo    string       `json: "platform_item_no"`
-	Location          string       `json: "location"`
-	URL               string       `json: "url"`
-	VariationGroup    ArticleGroup `json: "variation_group"`
-	Images            []string     `json: "images"`
+	Title             string       `json: "title,omitempty"`
+	Description       string       `json: "description,omitempty"`
+	Oldprice          float32      `json: "oldprice,omitempty"`
+	Price             float32      `json: "price,omitempty"`
+	MomsPercent       int          `json: "moms_percent,omitempty"`
+	NumInStock        int          `json: "num_in_stock,omitempty"`
+	State             string       `json: "state,omitempty"`
+	IsBlockedByFyndiq bool         `json: "is_blocked_by_fyndiq,omitempty"`
+	ItemNo            string       `json: "item_no,omitempty"`
+	PlatformItemNo    string       `json: "platform_item_no,omitempty"`
+	Location          string       `json: "location,omitempty"`
+	URL               string       `json: "url,omitempty"`
+	VariationGroup    ArticleGroup `json: "variation_group,omitempty"`
+	Images            []string     `json: "images,omitempty"`
 }
 
 // ProductList represents list of products with meta data
@@ -110,4 +111,34 @@ func (a *API) DeleteProduct(id int) error {
 		return err
 	}
 	return a.tr.Delete(url)
+}
+
+// CreateProduct creates new product
+// http://fyndiq.github.io/api-v1/#post-create-products
+func (a *API) CreateProduct(product *Product) error {
+	var err error
+	var url string
+	var post []byte
+	if post, err = json.Marshal(product); err != nil {
+		return err
+	}
+	if url, err = a.tr.URL("product/", map[string]string{}); err != nil {
+		return err
+	}
+	return a.tr.Post(url, bytes.NewBuffer(post))
+}
+
+// UpdateProduct updates existing product
+// http://fyndiq.github.io/api-v1/#post-create-products
+func (a *API) UpdateProduct(id int, product *Product) error {
+	var err error
+	var url string
+	var post []byte
+	if post, err = json.Marshal(product); err != nil {
+		return err
+	}
+	if url, err = a.tr.URL("product/"+strconv.Itoa(id), map[string]string{}); err != nil {
+		return err
+	}
+	return a.tr.Put(url, bytes.NewBuffer(post))
 }
